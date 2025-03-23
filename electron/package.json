@@ -1,0 +1,49 @@
+{
+  "name": "youhost",
+  "version": "1.0.0",
+  "description": "Já pensou em criar apps de verdade a partir dos seus sites? Essa é a proposta do YouHost, seus clientes instalam e rodam como se fosse apenas um app, mas na verdade é seu site!",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron .",
+    "build": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JoaoLucasMoraisOrtiz/YouHost.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JoaoLucasMoraisOrtiz/YouHost/issues"
+  },
+  "homepage": "https://github.com/JoaoLucasMoraisOrtiz/YouHost#readme",
+  "build": {
+    "appId": "com.YouHost.app",
+    "productName": "YouHostAppBase",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "main.js",
+      "package.json",
+      "assets/**/*",
+      "../config.json"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  },
+  "devDependencies": {
+    "electron": "^35.0.3",
+    "electron-builder": "^25.1.8"
+  }
+}

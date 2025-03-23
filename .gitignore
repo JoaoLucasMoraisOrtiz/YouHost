@@ -1,0 +1,56 @@
+# Dependências
+node_modules/
+/electron/node_modules/
+
+# Arquivos de build
+/electron/release/
+/electron/dist/
+/dist/
+*.AppImage
+*.dmg
+*.exe
+*.deb
+*.rpm
+*.snap
+*.tar.gz
+*.zip
+*.pkg
+
+# Arquivos de desenvolvimento
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+.env
+.env.*
+!.env.example
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Arquivos temporários
+.tmp/
+.temp/
+tmp/
+temp/
+
+# Arquivos de cobertura
+coverage/
+.nyc_output/
+
+# Cache
+.npm
+.eslintcache
+.node_repl_history
+.yarn-integrity
+
+# Específicos do YouHost
+/electron/loading.html
+**/loading-*.html
