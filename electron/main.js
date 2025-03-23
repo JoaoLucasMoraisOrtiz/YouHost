@@ -1,28 +1,39 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const os = require('os'); // Adicione esta linha
+const os = require('os');
+const ServerManager = require('./server-manager'); // Nome atualizado
 
-// Variável global para janela de carregamento
+// Variáveis globais
 let loadingScreen;
 let mainWindow;
+let serverManager; // Nome atualizado
 
-// Função para carregar o arquivo de configuração
+// Modifique a função loadConfig()
 function loadConfig() {
   try {
-    // Isso precisa ser relativo ao app.asar
-    const configPath = path.join(app.getAppPath(), '../config.json');
+    // Lista de possíveis locais para o config.json
+    const possiblePaths = [
+      path.join(app.getAppPath(), '../config.json'),                     // Relativo ao app.asar
+      path.join(path.dirname(app.getPath('exe')), 'config.json'),        // Junto ao executável
+      path.join(path.dirname(app.getPath('exe')), '../config.json'),     // Um nível acima do executável
+      path.join(path.dirname(app.getPath('exe')), 'resources/config.json') // Na pasta resources
+    ];
     
-    if (fs.existsSync(configPath)) {
-      const configData = fs.readFileSync(configPath, 'utf8');
-      return JSON.parse(configData);
-    } else {
-      console.error('Arquivo de configuração não encontrado:', configPath);
-      return { mainURL: "http://localhost:8081" };
+    // Verifique todos os possíveis caminhos
+    for (const configPath of possiblePaths) {
+      console.log(`Tentando carregar config.json de: ${configPath}`);
+      if (fs.existsSync(configPath)) {
+        console.log(`Arquivo de configuração encontrado em: ${configPath}`);
+        const configData = fs.readFileSync(configPath, 'utf8');
+        return JSON.parse(configData);
+      }
     }
+    
+    console.error('Arquivo de configuração não encontrado em nenhum local conhecido');
+    return { mainURL: "http://localhost:8081" };
   } catch (error) {
     console.error('Erro ao carregar o arquivo de configuração:', error);
-    // Retornar configuração padrão em caso de erro
     return { mainURL: "http://localhost:8081" };
   }
 }
@@ -79,9 +90,19 @@ function createLoadingScreen() {
   loadingScreen.center();
 }
 
-function createWindow() {
+// Função assíncrona para criar a janela principal
+async function createWindow() {
   // Cria a tela de carregamento primeiro
   createLoadingScreen();
+  
+  // Inicializa o gerenciador de servidor
+  const configPath = path.join(app.getAppPath(), '../config.json');
+  serverManager = new ServerManager(configPath);
+  
+  // Inicia o servidor
+  console.log("Iniciando servidor...");
+  await serverManager.startServer();
+  console.log("Servidor iniciado, criando janela principal...");
   
   // Carrega a configuração
   const config = loadConfig();
@@ -109,27 +130,37 @@ function createWindow() {
     if (loadingScreen) {
       loadingScreen.close();
       loadingScreen = null;
-      
-      // Remover o arquivo temporário HTML
-      const tempPath = path.join(__dirname, 'loading.html');
-      if (fs.existsSync(tempPath)) {
-        fs.unlinkSync(tempPath);
-      }
     }
   });
 
-  // (Opcional) Abre o DevTools para debug
-  // mainWindow.webContents.openDevTools();
+  // Quando a janela principal for fechada
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+  });
 }
 
 app.whenReady().then(createWindow);
 
-// Fecha o aplicativo quando todas as janelas são fechadas (exceto no macOS)
+// Fecha o aplicativo quando todas as janelas são fechadas
 app.on('window-all-closed', () => {
+  // Para o servidor ao fechar o aplicativo
+  if (serverManager) {
+    console.log("Parando o servidor...");
+    serverManager.stopServer();
+  }
+  
   if (process.platform !== 'darwin') app.quit();
 });
 
-// Recria a janela se o app for ativado e nenhuma janela estiver aberta (comum no macOS)
+// Recria a janela se o app for ativado e nenhuma janela estiver aberta
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) createWindow();
+});
+
+// Antes de sair, certifique-se de parar o servidor
+app.on('before-quit', () => {
+  if (serverManager) {
+    console.log("Parando o servidor antes de sair...");
+    serverManager.stopServer();
+  }
 });

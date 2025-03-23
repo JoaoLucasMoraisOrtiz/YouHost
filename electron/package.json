@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron .",
-    "build": "electron-builder --dir",
+    "build": "electron-builder --dir && cp ../config.json ./release/linux-unpacked/resources/config.json",
     "dist": "electron-builder"
   },
   "repository": {
@@ -30,7 +30,8 @@
       "main.js",
       "package.json",
       "assets/**/*",
-      "../config.json"
+      "../config.json",
+      "server-manager.js"
     ],
     "win": {
       "target": "nsis"

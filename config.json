@@ -1,4 +1,8 @@
 {
     "mainURL": "http://localhost:8081",
-    "siteFiles": ""
+    "siteFiles": "/media/joao/f7fe1eb1-704c-4311-a398-2083d975736e/Documentos/business/Intelligence-Framework/intelligenceFramework",
+    "startTrigger": "BROWSER=none npx expo start --web --port [port]",
+    "triggerParams": {
+        "port": 8081
+    }
 }
