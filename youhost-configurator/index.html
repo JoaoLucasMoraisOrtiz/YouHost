@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouHost Configurator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>YouHost App Configurator</h1>
+            <p>Configure e construa seu aplicativo desktop a partir de um site</p>
+        </header>
+
+        <div class="wizard">
+            <div class="steps">
+                <div class="step active" data-step="1">1. Repositório</div>
+                <div class="step" data-step="2">2. Configuração</div>
+                <div class="step" data-step="3">3. Dependências</div>
+                <div class="step" data-step="4">4. Build</div>
+                <div class="step" data-step="5">5. Instalador</div>
+            </div>
+
+            <div class="step-content">
+                <!-- Passo 1: Repositório -->
+                <div class="step-pane active" id="step1">
+                    <h2>Repositório do Projeto</h2>
+                    <p>Informe o repositório GitHub que contém o projeto e token de acesso (se necessário).</p>
+                    
+                    <div class="form-group">
+                        <label for="repo">URL do Repositório GitHub:</label>
+                        <input type="text" id="repo" placeholder="https://github.com/usuario/repositorio">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="token">Token de Acesso (opcional):</label>
+                        <input type="password" id="token" placeholder="ghp_xxxxxxxxxxxxxxxx">
+                        <small>Necessário apenas para repositórios privados.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="frontendPath">Pasta do Frontend (opcional):</label>
+                        <input type="text" id="frontendPath" placeholder="pasta/do/frontend">
+                        <small>Deixe em branco para usar todo o repositório.</small>
+                    </div>
+
+                    <div class="form-actions">
+                        <button id="nextToStep2" class="btn-primary">Próximo</button>
+                    </div>
+                </div>
+
+                <!-- Passo 2: Configuração -->
+                <div class="step-pane" id="step2">
+                    <h2>Configuração da Aplicação</h2>
+                    <p>Configure como o servidor local será iniciado.</p>
+                    
+                    <div class="form-group">
+                        <label for="mainURL">URL Principal:</label>
+                        <input type="text" id="mainURL" placeholder="http://localhost:8081">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="startTrigger">Comando de Inicialização:</label>
+                        <input type="text" id="startTrigger" placeholder="BROWSER=none npx expo start --web --port [port]">
+                        <small>Use [port] para substituir pela porta. Você pode usar outros placeholders também.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Parâmetros Adicionais:</label>
+                        <div id="triggerParams">
+                            <div class="param-row">
+                                <input type="text" placeholder="nome" class="param-name">
+                                <input type="text" placeholder="valor" class="param-value">
+                                <button class="btn-icon remove-param">-</button>
+                            </div>
+                        </div>
+                        <button id="addParam" class="btn-secondary">Adicionar Parâmetro</button>
+                        <small>Exemplos: port=8081, env=dev, host=localhost</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Sistema Operacional:</label>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" name="targetOS" value="win32"> Windows
+                            </label>
+                            <label>
+                                <input type="radio" name="targetOS" value="darwin"> macOS
+                            </label>
+                            <label>
+                                <input type="radio" name="targetOS" value="linux"> Linux
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button id="backToStep1" class="btn-secondary">Voltar</button>
+                        <button id="nextToStep3" class="btn-primary">Próximo</button>
+                    </div>
+                </div>
+
+                <!-- Mude o ID da etapa de dependências -->
+                <div class="step-pane" id="step3">
+                    <h2>Configuração de Dependências</h2>
+                    <p>Configure as dependências necessárias para o funcionamento do aplicativo.</p>
+                    
+                    <div class="form-group">
+                        <label>Gerenciador de Pacotes:</label>
+                        <select id="packageManager">
+                            <!-- Será preenchido via JavaScript -->
+                        </select>
+                        <small>Selecione o gerenciador de pacotes a ser usado para instalar dependências.</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Dependências Necessárias:</label>
+                        <div id="dependencies-list">
+                            <!-- Será preenchido via JavaScript -->
+                        </div>
+                        <button id="addDependency" class="btn-secondary">Adicionar Dependência</button>
+                    </div>
+                    
+                    <div class="dependency-template" style="display: none;">
+                        <div class="dependency-item">
+                            <div class="dependency-header">
+                                <input type="checkbox" class="dep-required">
+                                <input type="text" class="dep-name" placeholder="Nome da dependência">
+                                <button class="btn-icon remove-dep">-</button>
+                            </div>
+                            <div class="dependency-details">
+                                <input type="text" class="dep-display-name" placeholder="Nome de exibição">
+                                <input type="text" class="dep-description" placeholder="Descrição">
+                                <input type="text" class="dep-version" placeholder="Versão">
+                                <div class="package-names">
+                                    <h4>Nomes de pacotes por gerenciador:</h4>
+                                    <div class="package-name-row">
+                                        <span class="pm-name">apt:</span>
+                                        <input type="text" class="pkg-apt" placeholder="Pacote para apt">
+                                    </div>
+                                    <div class="package-name-row">
+                                        <span class="pm-name">yum/dnf:</span>
+                                        <input type="text" class="pkg-yum" placeholder="Pacote para yum/dnf">
+                                    </div>
+                                    <div class="package-name-row">
+                                        <span class="pm-name">pacman:</span>
+                                        <input type="text" class="pkg-pacman" placeholder="Pacote para pacman">
+                                    </div>
+                                    <div class="package-name-row">
+                                        <span class="pm-name">brew:</span>
+                                        <input type="text" class="pkg-brew" placeholder="Pacote para homebrew">
+                                    </div>
+                                    <div class="package-name-row">
+                                        <span class="pm-name">choco:</span>
+                                        <input type="text" class="pkg-choco" placeholder="Pacote para chocolatey">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button id="backToStep2" class="btn-secondary">Voltar</button>
+                        <button id="nextToStep4" class="btn-primary">Próximo</button>
+                    </div>
+                </div>
+
+                <!-- Renomeie a etapa de build para step4 -->
+                <div class="step-pane" id="step4">
+                    <h2>Construção do Aplicativo</h2>
+                    <p>Revise as configurações e inicie a construção do aplicativo.</p>
+                    
+                    <div class="config-summary">
+                        <h3>Resumo da Configuração</h3>
+                        <dl>
+                            <dt>Repositório:</dt>
+                            <dd id="summary-repo"></dd>
+
+                            <dt>Pasta Frontend:</dt>
+                            <dd id="summary-frontend"></dd>
+
+                            <dt>URL Principal:</dt>
+                            <dd id="summary-url"></dd>
+
+                            <dt>Comando de Inicialização:</dt>
+                            <dd id="summary-command"></dd>
+
+                            <dt>Parâmetros:</dt>
+                            <dd id="summary-params"></dd>
+
+                            <dt>Sistema Alvo:</dt>
+                            <dd id="summary-os"></dd>
+                        </dl>
+                    </div>
+
+                    <div class="form-actions">
+                        <button id="backToStep3" class="btn-secondary">Voltar</button>
+                        <button id="startBuild" class="btn-primary">Iniciar Build</button>
+                    </div>
+                </div>
+
+                <!-- Renomeie a etapa do instalador para step5 -->
+                <div class="step-pane" id="step5">
+                    <h2>Instalador Criado</h2>
+                    
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress" id="buildProgress"></div>
+                        </div>
+                        <div id="progressMessage">Aguardando início do processo...</div>
+                    </div>
+
+                    <div id="buildSuccess" class="success-message" style="display: none;">
+                        <h3>Build Completado com Sucesso!</h3>
+                        <p>O instalador foi criado e está disponível em:</p>
+                        <div id="installerPath" class="path-display"></div>
+                        <button id="openInstallerFolder" class="btn-primary">Abrir Local do Instalador</button>
+                    </div>
+
+                    <div id="buildError" class="error-message" style="display: none;">
+                        <h3>Erro durante o processo</h3>
+                        <p id="errorMessage"></p>
+                    </div>
+
+                    <div class="form-actions">
+                        <button id="backToStep4" class="btn-secondary">Voltar</button>
+                        <button id="resetForm" class="btn-primary">Nova Configuração</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="render.js"></script>
+</body>
+</html>
